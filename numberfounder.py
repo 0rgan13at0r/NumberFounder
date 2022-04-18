@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
 
 import re
-import logging
 import time
 import pyperclip
-import sys
 import argparse
 
 
-logging.basicConfig(level=logging.DEBUG, format="%(asctime)s---%(levelname)s---%(message)s")
-# logging.disable(logging.CRITICAL)
+def output_file(file: str = None, data: str = None) -> None:
+    """
+    Write data in user's file.
+    """
+    with open(file, "a") as file_f:
+        file_f.write(data)
 
 
-def parse_clipboard(regular=None):
+def parse_clipboard(regular: str = None, output: bool = False) -> None:
     """Parse clipboard"""
 
     numbers_count = 0
@@ -20,13 +22,17 @@ def parse_clipboard(regular=None):
     for number in re.findall(regular, pyperclip.paste()):
         time.sleep(0.03)
 
-        print(f"Found: +375-{''.join(number)}")
+        print(f"Found: {'-'.join(number)}")
         numbers_count += 1
+
+        if output:
+            output_file(args.output, f"{'-'.join(number)}\n")
+
 
     print(f"\nDone\tNumbers count: {numbers_count}")
 
 
-def parse_text_file(regular=None, text_file=None):
+def parse_text_file(regular: str = None, text_file: str = None, output: bool = False) -> None:
     """Parse text file"""
 
     numbers_count = 0
@@ -37,22 +43,35 @@ def parse_text_file(regular=None, text_file=None):
             for number in re.findall(regular, file.read()):
                 time.sleep(0.03)
 
-                print(f"Found: +375-{''.join(number)}")
+                print(f"Found: {'-'.join(number)}")
                 numbers_count += 1
+
+                if output:
+                    output_file(args.output, f"{'-'.join(number)}\n")
 
             print(f"\nDone\tNumbers count: {numbers_count}")
 
     except FileNotFoundError:
-        logging.error("File not founded")
+        print("File not found!")
 
 
 def main():
-    phones_re = re.compile(r"\d{2}-\d{7}")  # Regular variable for phones
+    phones_re = re.compile(
+        r"""(\+375|80)?  # Country's code
+        \S?             # Delimiter
+        (\d{2})         # City's code
+        \S?             # Delimiter
+        (\d{7})""",     # Other digits
+        re.VERBOSE)
 
     if args.clipboard:
-        parse_clipboard(phones_re)
+        parse_clipboard(phones_re, output=args.output)
+
     elif args.file:
-        parse_text_file(phones_re, args.file)
+        parse_text_file(phones_re, args.file, output=args.output)
+
+    else:
+        parser.print_help()
 
 
 if __name__ == '__main__':
@@ -67,9 +86,11 @@ if __name__ == '__main__':
     group.add_argument("--clipboard", action="store_true", help="Usage clipboard for parsing numbers.",)
     group.add_argument("--file", help="Usage text file for parsing numbers.", metavar="FILE",)
 
+    parser.add_argument("-o", "--output", help="Output in file", type=str, metavar="FILE", default=False)
+
     args = parser.parse_args()
 
     try:
         main()
     except KeyboardInterrupt:
-        logging.info("Canceled")
+        print("\nCanceled")
