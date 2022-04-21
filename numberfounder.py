@@ -6,7 +6,7 @@ import pyperclip
 import argparse
 
 
-def output_file(file: str = None, data: str = None) -> None:
+def output_file(file: str = None, data: str = None):
     """
     Write data in user's file.
     """
@@ -14,7 +14,7 @@ def output_file(file: str = None, data: str = None) -> None:
         file_f.write(data)
 
 
-def parse_clipboard(regular: str = None, output: bool = False) -> None:
+def parse_clipboard(regular: str = None, output: bool = False):
     """Parse clipboard"""
 
     numbers_count = 0
@@ -32,7 +32,7 @@ def parse_clipboard(regular: str = None, output: bool = False) -> None:
     print(f"\nDone\tNumbers count: {numbers_count}")
 
 
-def parse_text_file(regular: str = None, text_file: str = None, output: bool = False) -> None:
+def parse_text_file(regular: str = None, text_file: str = None, output: bool = False):
     """Parse text file"""
 
     numbers_count = 0
